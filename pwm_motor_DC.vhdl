@@ -6,11 +6,11 @@ use IEEE.std_logic_signed.all;
 entity pwm_motor_DC is
 port(
 clk: in std_logic;
-btn: in std_logic;
-sw: in std_logic_vector (4 downto 0);
+inicio: in std_logic;
+speed: in std_logic_vector (3 downto 0);
 pwm_motor_DC: out std_logic;
-sentido_motor_DC: out std_logic;
-led: out std_logic_vector (6 downto 0)
+--sentido_motor_DC: out std_logic;
+rpm_salida: out std_logic_vector (6 downto 0)
 );
 
 end pwm_motor_DC;
@@ -20,6 +20,7 @@ architecture Behavioral of pwm_motor_DC is
 signal reset: std_logic;
 signal pwm: std_logic;
 signal selector: integer range -10 to 10;
+
 signal duty_cycle: integer range 0 to 100;
 signal duty_cycle_aux: integer range 0 to 100;
 signal contador_aux_duty_cycle: integer range 0 to 500000; -- 200 Hz
@@ -32,19 +33,19 @@ signal frecuencia_pwm_flancos: integer range 0 to 100000000;
 
 begin
 
-reset<=btn;
-selector<=to_integer(signed(sw));
-led<=std_logic_vector(to_unsigned(duty_cycle, 7));
+reset<=inicio;
+selector<=to_integer(signed(speed));
+rpm_salida<=std_logic_vector(to_unsigned(duty_cycle, 7));
 frecuencia_pwm<=200; --este valor controla la frecuencia del pwm
 
 process(selector, pwm)
 begin
 if selector > 0 then --giro normal
-    sentido_motor_DC<='0';
+    --sentido_motor_DC<='0';
     pwm_motor_DC<=pwm; --para llevar la señal al motor
     duty_cycle_aux<=selector*10;
 else
-    sentido_motor_DC<=pwm;
+    --sentido_motor_DC<=pwm;
     pwm_motor_DC<='0'; --para llevar la señal al motor
     duty_cycle_aux<=(-selector)*10;
 end if;
