@@ -24,3 +24,7 @@ ds_data_bus	: INOUT	STD_LOGIC;
 speed: in std_logic_vector (3 downto 0);
 que_ver: in std_logic_vector (1 downto 0)
 );
+
+architecture Behavioral of my_servo_v1 is
+begin
+end Behavioral;
