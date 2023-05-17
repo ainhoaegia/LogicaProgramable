@@ -27,16 +27,29 @@ trigger: out std_logic;
 crc_en	: OUT		STD_LOGIC;
 ds_data_bus	: INOUT	STD_LOGIC;
 speed: in std_logic_vector (3 downto 0);
-que_ver: in std_logic_vector (1 downto 0)
+que_ver: in std_logic_vector (1 downto 0);
+servo_pwm: out std_logic
 );
 
 end entity;
 
 architecture Behavioral of maqueta_21_22 is
+
 signal sw: std_logic_vector (4 downto 0);
+signal enable: std_logic;
+
+signal distancia_cm: integer range 0 to 500;
+signal salida_cm: std_logic_vector (11 downto 0);
+
 begin
+
+led(1)<=FC2;
+led(0)<=FC1;
+
+calefactor<=FC1 or FC2;
+
 sw <= sentido & speed;
-aa : entity work.pwm_motor_DC
+work_pwm_motor_DC : entity work.pwm_motor_DC
 port map (
 clk => clk,
 btn => inicio,
@@ -44,4 +57,58 @@ sw => sw,
 pwm_motor_DC => pwm_motor_DC(0),
 sentido_motor_DC => pwm_motor_DC(1)
 );
+
+enable <= '1' when speed > 0 else '0';
+work_my_quimat : entity work.my_quimat
+port map (
+clk => clk,
+reset => inicio,
+enable => enable,
+dir => sentido,
+enable_sal => enable_sal ,
+dir_sal => dir_sal,
+frecuencia_paso_paso => "00000" & speed,
+step => step
+);
+
+work_my_servo_v1 : entity work.my_servo_v1
+port map (
+clk => clk,
+inicio => inicio,
+selector => speed,
+servo_pwm => servo_pwm
+);
+
+process(que_ver)
+begin
+if que_ver = "00" then
+    salida_cm <= std_logic_vector(to_unsigned(distancia_cm, 12));
+elsif que_ver = "01"  then
+    salida_cm <= "010100" & std_logic_vector(to_unsigned(distancia_cm, 6));
+else
+    salida_cm <= "000000000000";
+end if;
+
+end process;
+
+instance_bin : entity work.bin_BCD
+port map (
+    clk => clk,
+    tipo => que_ver,
+    inicio => inicio,
+    sw => salida_cm,
+    enable => '1',
+    enable_seg => enable_seg,
+    segmentos => segmentos
+);
+
+instance_HCSR4 : entity work.HC_SR04
+port map (
+    clk => clk, -- al ser con ARM es de 100 MHz, no de 125 MHz
+    reset => inicio,
+    echo => echo,
+    trigger => trigger,
+    distancia_cm => distancia_cm
+);
+
 end Behavioral;
