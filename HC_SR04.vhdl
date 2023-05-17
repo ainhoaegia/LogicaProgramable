@@ -8,8 +8,8 @@ port(
 clk: in std_logic; -- al ser con ARM es de 100 MHz, no de 125 MHz
 reset: in std_logic;
 echo: in std_logic;
-distancia_cm: out integer range 0 to 500; 
-trigger: out std_logic
+trigger: out std_logic;
+distancia_cm: out integer range 0 to 500
 );
 end HC_SR04;
 
