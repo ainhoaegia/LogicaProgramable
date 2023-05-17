@@ -1,3 +1,8 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_signed.all;
+
 entity maqueta_21_22 is
 port(
 clk: in std_logic;
@@ -25,6 +30,18 @@ speed: in std_logic_vector (3 downto 0);
 que_ver: in std_logic_vector (1 downto 0)
 );
 
-architecture Behavioral of my_servo_v1 is
+end entity;
+
+architecture Behavioral of maqueta_21_22 is
+signal sw: std_logic_vector (4 downto 0);
 begin
+sw <= sentido & speed;
+aa : entity work.pwm_motor_DC
+port map (
+clk => clk,
+btn => inicio,
+sw => sw,
+pwm_motor_DC => pwm_motor_DC(0),
+sentido_motor_DC => pwm_motor_DC(1)
+);
 end Behavioral;
