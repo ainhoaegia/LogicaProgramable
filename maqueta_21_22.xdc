@@ -79,14 +79,18 @@ set_property PACKAGE_PIN L1 [get_ports {sentido_salida}]
 set_property PACKAGE_PIN W3 [get_ports {crc_en}]			
 	set_property IOSTANDARD LVCMOS33 [get_ports {crc_en}]
 
+##Pmod Header JA
+##Sch name = JA1
+set_property PACKAGE_PIN J1 [get_ports {servo_pwm}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {servo_pwm}]
 
 ##Pmod Header JB
 ##Sch name = JB4
-set_property PACKAGE_PIN B16 [get_ports {pwm_motor_DC[1]}]                    
-    set_property IOSTANDARD LVCMOS33 [get_ports {pwm_motor_DC[1]}]
-##Sch name = JB10
-set_property PACKAGE_PIN C16 [get_ports {pwm_motor_DC[0]}]                    
+set_property PACKAGE_PIN B16 [get_ports {pwm_motor_DC[0]}]                    
     set_property IOSTANDARD LVCMOS33 [get_ports {pwm_motor_DC[0]}]
+##Sch name = JB10
+set_property PACKAGE_PIN C16 [get_ports {pwm_motor_DC[1]}]                    
+    set_property IOSTANDARD LVCMOS33 [get_ports {pwm_motor_DC[1]}]
 ##Sch name = JC1
 set_property PACKAGE_PIN K17 [get_ports {sensor_hall_verde}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {sensor_hall_verde}]
@@ -114,10 +118,10 @@ set_property PACKAGE_PIN P17 [get_ports {FC2}]
 set_property PACKAGE_PIN A16 [get_ports {calefactor}]					
     set_property IOSTANDARD LVCMOS33 [get_ports {calefactor}]
 ##Sch name = JC8
-    set_property PACKAGE_PIN M19 [get_ports trigger]                    
-set_property IOSTANDARD LVCMOS33 [get_ports trigger]
+set_property PACKAGE_PIN M19 [get_ports trigger]                    
+    set_property IOSTANDARD LVCMOS33 [get_ports trigger]
 ##Sch name = JC2
-set_property PACKAGE_PIN M18 [get_ports echo]                    
+set_property PACKAGE_PIN M18 [get_ports echo]    
     set_property IOSTANDARD LVCMOS33 [get_ports echo]        
 
 ##Pmod Header JC
