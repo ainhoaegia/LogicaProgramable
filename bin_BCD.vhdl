@@ -55,6 +55,11 @@ elsif rising_edge(clk) then
         decenas <= (num_aux1/10)mod 10;
         centenas <= num_aux2 mod 10;
         millares <= (num_aux2/10)mod 10;
+     else
+        unidades <= num_aux mod 10;
+        decenas <= (num_aux/10)mod 10;
+        centenas <= (num_aux/100)mod 10;
+        millares <= (num_aux/1000)mod 10;
      end if;
 end if;
 end process;                                              
