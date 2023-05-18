@@ -39,7 +39,11 @@ signal sw: std_logic_vector (4 downto 0);
 signal enable: std_logic;
 
 signal distancia_cm: integer range 0 to 500;
-signal salida_cm: std_logic_vector (11 downto 0);
+signal salida: std_logic_vector (11 downto 0);
+
+signal data_out_lsb: std_logic_vector (7 downto 0);
+signal data_out_msb: std_logic_vector (3 downto 0);
+    
 
 begin
 
@@ -82,11 +86,14 @@ servo_pwm => servo_pwm
 process(que_ver)
 begin
 if que_ver = "00" then
-    salida_cm <= std_logic_vector(to_unsigned(distancia_cm, 12));
+    salida <= std_logic_vector(to_unsigned(distancia_cm, 12));
 elsif que_ver = "01"  then
-    salida_cm <= "010100" & std_logic_vector(to_unsigned(distancia_cm, 6));
+    salida <= "010100" & std_logic_vector(to_unsigned(distancia_cm, 6));
+elsif que_ver = "10" then
+    salida <= "0000" & data_out_lsb;
 else
-    salida_cm <= "000000000000";
+    salida <= "000000000000";
+    
 end if;
 
 end process;
@@ -96,7 +103,7 @@ port map (
     clk => clk,
     tipo => que_ver,
     inicio => inicio,
-    sw => salida_cm,
+    sw => salida,
     enable => '1',
     enable_seg => enable_seg,
     segmentos => segmentos
@@ -109,6 +116,15 @@ port map (
     echo => echo,
     trigger => trigger,
     distancia_cm => distancia_cm
+);
+
+work_sensTemp : entity work.sensTemp
+port map (
+  clk1m	=> clk,
+  crc_en => crc_en,
+  ds_data_bus => ds_data_bus,
+  data_out_lsb => data_out_lsb,
+  data_out_msb => data_out_msb
 );
 
 end Behavioral;
