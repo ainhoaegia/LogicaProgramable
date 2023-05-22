@@ -43,7 +43,10 @@ signal salida: std_logic_vector (11 downto 0);
 
 signal data_out_lsb: std_logic_vector (7 downto 0);
 signal data_out_msb: std_logic_vector (3 downto 0);
-    
+
+signal consigna: std_logic_vector(5 downto 0);
+
+signal dir: std_logic;
 
 begin
 
@@ -62,13 +65,27 @@ pwm_motor_DC => pwm_motor_DC(0),
 sentido_motor_DC => pwm_motor_DC(1)
 );
 
+consigna <= "011110";
+process(que_ver, consigna, distancia_cm, sentido)
+begin
+if que_ver = "01" then
+    if consigna < distancia_cm then
+        dir <= '0';
+    elsif consigna > distancia_cm then
+        dir <= '1';
+    end if;
+else
+    dir <= sentido;
+end if;
+end process;
+
 enable <= '1' when speed > 0 else '0';
 work_my_quimat : entity work.my_quimat
 port map (
 clk => clk,
 reset => inicio,
 enable => enable,
-dir => sentido,
+dir => dir,
 enable_sal => enable_sal ,
 dir_sal => dir_sal,
 frecuencia_paso_paso => "00000" & speed,
@@ -88,7 +105,7 @@ begin
 if que_ver = "00" then
     salida <= std_logic_vector(to_unsigned(distancia_cm, 12));
 elsif que_ver = "01"  then
-    salida <= "010100" & std_logic_vector(to_unsigned(distancia_cm, 6));
+    salida <= consigna & std_logic_vector(to_unsigned(distancia_cm, 6));
 elsif que_ver = "10" then
     salida <= "0000" & data_out_lsb;
 else
@@ -125,6 +142,16 @@ port map (
   ds_data_bus => ds_data_bus,
   data_out_lsb => data_out_lsb,
   data_out_msb => data_out_msb
+);
+
+work_sensHall : entity work.design
+port map (
+clk => clk,
+reset => inicio,
+sentido => '0',
+a => '0',
+b => '0',
+led => "0"
 );
 
 end Behavioral;
