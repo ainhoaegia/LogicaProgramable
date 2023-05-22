@@ -144,14 +144,4 @@ port map (
   data_out_msb => data_out_msb
 );
 
-work_sensHall : entity work.design
-port map (
-clk => clk,
-reset => inicio,
-sentido => '0',
-a => '0',
-b => '0',
-led => "0"
-);
-
 end Behavioral;
