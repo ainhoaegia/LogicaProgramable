@@ -1,0 +1,108 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+
+-- Contador que avanza de 0 a 9 al ritmo del dedo en un pulsador
+-- El contador avanza al soltar, no al apretar
+entity sesion1_javi is
+port(
+clk: in std_logic;
+inicio: in std_logic;
+pulsador: in std_logic;
+seven_seg: out std_logic_vector (6 downto 0);
+enable_seg: out std_logic_vector (3 downto 0)
+);
+end sesion1_javi;
+
+architecture Behavioral of sesion1_javi is
+
+signal contador_unidades_seg: std_logic_vector (3 downto 0);
+signal estado: std_logic_vector (1 downto 0);
+signal cont_filtro: integer range 0 to 50000000;
+signal salida: std_logic;
+
+begin
+
+process(clk, inicio)
+begin
+if inicio='1' then	
+	estado<="00";
+elsif rising_edge(clk) then
+	case estado is
+	when "00" => 	cont_filtro<=0;
+					if pulsador='0' then
+						estado<="00";
+					else
+						estado<="01";
+					end if;
+	when "01" =>	cont_filtro<=cont_filtro+1;
+					if pulsador='1' and cont_filtro<50000000 then
+						estado<="01";
+					elsif pulsador='1' and cont_filtro=50000000 then		
+						estado<="10";
+					else --pulsador='0'
+						estado<="00";
+					end if;
+	when "10" => 	cont_filtro<=0;
+					if pulsador='1' then
+						estado<="10";
+					else
+						estado<="11";
+					end if;
+	when "11" => 	cont_filtro<=0;
+					estado<="00";
+	when others => 	cont_filtro<=0;
+					estado<="00";
+	end case;
+end if;
+end process;
+
+process(estado)
+begin
+case estado is
+	when "00" => salida<='0';
+	when "01" => salida<='0';
+	when "10" => salida<='0';
+	when "11" => salida<='1';
+	when others => salida<='0';
+end case;
+end process;
+
+
+process(inicio, clk)
+begin
+if inicio='1' then
+	contador_unidades_seg<="0000";
+elsif rising_edge(clk) then
+	if salida='1' then
+		if contador_unidades_seg=9 then
+			contador_unidades_seg<="0000";
+		else
+			contador_unidades_seg<=contador_unidades_seg+1;
+		end if;
+	end if;
+end if;
+end process;
+
+
+process(contador_unidades_seg)
+begin
+case contador_unidades_seg is
+when "0000" => seven_seg<="0000001";
+when "0001" => seven_seg<="1001111";
+when "0010" => seven_seg<="0010010";
+when "0011" => seven_seg<="0000110";
+when "0100" => seven_seg<="1001100";
+when "0101" => seven_seg<="0100100";
+when "0110" => seven_seg<="1100000";
+when "0111" => seven_seg<="0001111";
+when "1000" => seven_seg<="0000000";
+when "1001" => seven_seg<="0001100";
+when others => seven_seg<="1111111";
+end case;
+end process;
+
+enable_seg<="0111";
+
+end Behavioral;
