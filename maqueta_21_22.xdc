@@ -4,9 +4,17 @@ set_property PACKAGE_PIN W5 [get_ports clk]
 	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk]
 
 ##Buttons
-set_property PACKAGE_PIN U18 [get_ports inicio]					
-    set_property IOSTANDARD LVCMOS33 [get_ports inicio]
-
+set_property PACKAGE_PIN U18 [get_ports start]					
+    set_property IOSTANDARD LVCMOS33 [get_ports start]
+set_property PACKAGE_PIN T18 [get_ports button_up]						
+	set_property IOSTANDARD LVCMOS33 [get_ports button_up]
+set_property PACKAGE_PIN U17 [get_ports button_down]						
+	set_property IOSTANDARD LVCMOS33 [get_ports button_down]
+set_property PACKAGE_PIN W19 [get_ports button_left]						
+	set_property IOSTANDARD LVCMOS33 [get_ports button_left]
+set_property PACKAGE_PIN T17 [get_ports button_right]						
+	set_property IOSTANDARD LVCMOS33 [get_ports button_right]
+	
 ## Switches
 set_property PACKAGE_PIN V17 [get_ports {speed[0]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {speed[0]}]
@@ -24,6 +32,9 @@ set_property PACKAGE_PIN W13 [get_ports {que_ver[1]}]
 	
 set_property PACKAGE_PIN R2 [get_ports {sentido}]		
 	set_property IOSTANDARD LVCMOS33 [get_ports {sentido}]
+
+set_property PACKAGE_PIN T1 [get_ports {inicio}]		
+	set_property IOSTANDARD LVCMOS33 [get_ports {inicio}]
 
 ##7 segment display
 set_property PACKAGE_PIN W7 [get_ports {segmentos[6]}]                    
