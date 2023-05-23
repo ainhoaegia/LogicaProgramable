@@ -7,6 +7,11 @@ entity maqueta_21_22 is
 port(
 clk: in std_logic;
 inicio: in std_logic;
+start: in std_logic;
+button_up: in std_logic ;
+button_down: in std_logic ;
+button_left: in std_logic ;
+button_right: in std_logic ;
 segmentos: out std_logic_vector (6 downto 0);
 enable_seg: out std_logic_vector (3 downto 0);
 FC1: in std_logic;
@@ -48,12 +53,16 @@ signal consigna: std_logic_vector(5 downto 0);
 
 signal dir: std_logic;
 
+signal parar: std_logic;
+
+signal mode: std_logic_vector(3 downto 0);
+
 begin
 
 led(1)<=FC2;
 led(0)<=FC1;
 
-calefactor<=FC1 or FC2;
+-- calefactor<=FC1 or FC2;
 
 sw <= sentido & speed;
 work_pwm_motor_DC : entity work.pwm_motor_DC
@@ -65,21 +74,56 @@ pwm_motor_DC => pwm_motor_DC(0),
 sentido_motor_DC => pwm_motor_DC(1)
 );
 
-consigna <= "011110";
-process(que_ver, consigna, distancia_cm, sentido)
+process(clk, inicio, start, que_ver, consigna, distancia_cm, sentido)
 begin
+if inicio = '1' then
+    parar <= '1';
+elsif rising_edge(clk) then
+if FC1 = '1' then
+    if dir = '1' then
+        parar <= '1';
+    end if;
+elsif FC2 = '1' then
+    if dir = '0' then
+        parar <= '1';
+    end if;
+end if;
+if start = '1' then
+    if unsigned(consigna) = distancia_cm then
+        parar <= '1';
+    else
+        parar <= '0';
+    end if;
+else
 if que_ver = "01" then
-    if consigna < distancia_cm then
+    if unsigned(consigna) < distancia_cm then
         dir <= '0';
-    elsif consigna > distancia_cm then
+    elsif unsigned(consigna) > distancia_cm then
         dir <= '1';
+    else
+        parar <= '1';
+        dir <= '0';
     end if;
 else
     dir <= sentido;
 end if;
+end if;
+end if;
 end process;
 
-enable <= '1' when speed > 0 else '0';
+enable <= '1' when (parar = '0') and (speed > 0) else '0';
+
+work_mode_behaviour : entity work.button_behaviour 
+port map (
+clk => clk,
+inicio => inicio,
+pulsador_suma => button_right,
+pulsador_resta => button_left,
+valor => consigna,
+maximo => "100011"
+
+);
+
 work_my_quimat : entity work.my_quimat
 port map (
 clk => clk,
