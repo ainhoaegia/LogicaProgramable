@@ -57,10 +57,14 @@ signal parar: std_logic;
 
 signal mode: std_logic_vector(3 downto 0);
 
+signal rpm_visualize : std_logic_vector(7 downto 0);
+
 begin
 
 led(1)<=FC2;
 led(0)<=FC1;
+
+rpm_salida <= rpm_visualize;
 
 -- calefactor<=FC1 or FC2;
 
@@ -151,7 +155,9 @@ if que_ver = "00" then
 elsif que_ver = "01"  then
     salida <= consigna & std_logic_vector(to_unsigned(distancia_cm, 6));
 elsif que_ver = "10" then
-    salida <= "0000" & data_out_lsb;
+    salida <= "0000" & data_out_msb & data_out_lsb(7 downto 4);
+elsif que_ver  = "11" then
+   salida  <=  "0000" & rpm_visualize;
 else
     salida <= "000000000000";
     
@@ -186,6 +192,16 @@ port map (
   ds_data_bus => ds_data_bus,
   data_out_lsb => data_out_lsb,
   data_out_msb => data_out_msb
+);
+
+work_sensHall : entity work.sensor_hall
+port map (
+  clk => clk,
+  reset => inicio,
+  sentido => sentido_salida,
+  a => sensor_hall_verde,
+  b => sensor_hall_azul,
+  led => rpm_visualize
 );
 
 end Behavioral;
