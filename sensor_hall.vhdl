@@ -1,5 +1,3 @@
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -12,19 +10,19 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity hall is
+entity sensor_hall is
 Port ( 
 clk : in std_logic;
 reset : in std_logic ;
 sentido : out std_logic;
 a : in std_logic ;
 b : in std_logic ;
-led : out std_logic_vector(13 downto 0)
+led : out std_logic_vector(7 downto 0)
 
 );
-end hall;
+end sensor_hall;
 
-architecture Behavioral of hall is
+architecture Behavioral of sensor_hall is
 
 signal rpm : integer range 0 to 600000;
 
@@ -34,7 +32,7 @@ signal cont : integer range 0 to 60000;
 signal hall : std_logic_vector( 1 downto 0);
 
 signal aux_rpm : integer range 0 to 600000;
-signal hallData : std_logic_vector (13 downto 0);
+signal hallData : std_logic_vector (7 downto 0);
 
 begin
 
@@ -119,10 +117,8 @@ begin
     end if;
     end if;
 
-hallData <= std_logic_vector(to_unsigned(rpm, 14));
+hallData <= std_logic_vector(to_unsigned(rpm, 8));
 
 end process;
-
-
 
 end Behavioral;
