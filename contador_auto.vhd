@@ -10,15 +10,16 @@ inicio: in std_logic;
 pulsador_suma: in std_logic;
 pulsador_resta: in std_logic;
 maximo: in std_logic_vector(1 downto 0);
-contador: out std_logic_vector(1 downto 0)
+contador: out std_logic_vector(1 downto 0);
+modo: out std_logic
 );
 end contador_auto;
 
 architecture Behavioral of contador_auto is 
 
-signal estado_suma: std_logic_vector (2 downto 0);
+signal estado_suma: std_logic_vector (3 downto 0);
 signal puls_sal_suma: std_logic;
-signal estado_resta: std_logic_vector (2 downto 0);
+signal estado_resta: std_logic_vector (3 downto 0);
 signal puls_sal_resta: std_logic;
 signal cont_filtro_suma: integer range 0 to 200000;
 signal cont_espera_suma: integer range 0 to 25000000;
@@ -27,6 +28,9 @@ signal cont_filtro_resta: integer range 0 to 200000;
 signal cont_espera_resta: integer range 0 to 25000000;
 
 signal contador_aux: std_logic_vector(1 downto 0);
+
+signal modo_suma: std_logic;
+signal modo_resta: std_logic;
 
 begin
 
@@ -40,78 +44,82 @@ if inicio='1' then
 	cont_espera_suma<=0;
 elsif rising_edge(clk) then
 case estado_suma is
-when "000" =>
+when "0000" =>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=0;
 	if pulsador_suma='0' then
-		estado_suma<="000";
+		estado_suma<="0000";
 	else
-		estado_suma<="001";
+		estado_suma<="0001";
 	end if;
-when "001" => 
+when "0001" => 
    	cont_filtro_suma<=cont_filtro_suma+1;
 	cont_espera_suma<=0;
 	if pulsador_suma ='0' then
-		estado_suma<="000";
+		estado_suma<="0000";
 	elsif pulsador_suma ='1' and cont_filtro_suma>=100000 then
-		estado_suma<="010";
+		estado_suma<="0010";
 	else
-		estado_suma<="001";
+		estado_suma<="0001";
 	end if;
-when "010" =>
-	cont_filtro_suma<=0;
+when "0010" =>
+    cont_filtro_suma <= cont_filtro_suma + 1;
 	cont_espera_suma<=0;
-	if pulsador_suma ='0' then
-		estado_suma<="011";
+	if pulsador_suma ='0' and cont_filtro_suma < 20000000 then
+		estado_suma<="0011";
+	elsif cont_filtro_suma >= 20000000 then
+	   estado_suma<="1000";
 	else
-		estado_suma<="010";
+		estado_suma<="0010";
 	end if;
-when "011"=>
+when "0011"=>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=cont_espera_suma+1;
 	if pulsador_suma='1' then
-	   estado_suma<="000";
+	   estado_suma<="0000";
 	elsif cont_espera_suma>=5000000 then
-	   estado_suma<="100";
+	   estado_suma<="0100";
 	else 
-	   estado_suma<="011";
+	   estado_suma<="0011";
 	end if;         
-when "100" =>
+when "0100" =>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=cont_espera_suma+1;
     if pulsador_suma='1' then
-        estado_suma<="101";
+        estado_suma<="0101";
     elsif cont_espera_suma>=20000000 then
-        estado_suma<="000";
+        estado_suma<="0000";
     else
-        estado_suma<="100";
+        estado_suma<="0100";
     end if;        
-when "101" =>
+when "0101" =>
 	cont_filtro_suma<=cont_filtro_suma+1;
 	cont_espera_suma<=0;
 	if pulsador_suma='0' then	--rebote
-		estado_suma<="100";
+		estado_suma<="0100";
 	elsif pulsador_suma='1' and cont_filtro_suma>=100000 then
-		estado_suma<="110";
+		estado_suma<="0110";
 	else
-		estado_suma<="101";
+		estado_suma<="0101";
 	end if;
-when "110" =>
+when "0110" =>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=0;
 	if pulsador_suma='0' then
-		estado_suma<="111";
+		estado_suma<="0111";
 	else
-		estado_suma<="110";
+		estado_suma<="0110";
 	end if;
-when "111" =>
+when "0111" =>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=0;
-	estado_suma<="000";
+	estado_suma<="0000";
+when "1000" =>
+    estado_suma <= "0000";
 when others =>
 	cont_filtro_suma<=0;
 	cont_espera_suma<=0;
-    estado_suma<="000";
+    estado_suma<="0000";
 end case;
 end if;
 end process; 
@@ -125,108 +133,128 @@ if inicio='1' then
 	cont_espera_resta<=0;
 elsif rising_edge(clk) then
 case estado_resta is
-when "000" =>
+when "0000" =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
 	if pulsador_resta='0' then
-		estado_resta<="000";
+		estado_resta<="0000";
 	else
-		estado_resta<="001";
+		estado_resta<="0001";
 	end if;
-when "001" => 
+when "0001" => 
    	cont_filtro_resta<=cont_filtro_resta+1;
 	cont_espera_resta<=0;
 	if pulsador_resta ='0' then
-		estado_resta<="000";
+		estado_resta<="0000";
 	elsif pulsador_resta ='1' and cont_filtro_resta>=100000 then
-		estado_resta<="010";
+		estado_resta<="0010";
 	else
-		estado_resta<="001";
+		estado_resta<="0001";
 	end if;
-when "010" =>
+when "0010" =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
-	if pulsador_resta ='0' then
-		estado_resta<="011";
+	if pulsador_resta ='0' and cont_filtro_resta < 20000000 then
+		estado_resta<="0011";
+	elsif cont_filtro_resta >= 20000000 then
+	   estado_resta<="1000";
 	else
-		estado_resta<="010";
+		estado_resta<="0010";
 	end if;
-when "011"=>
+when "0011"=>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=cont_espera_resta+1;
 	if pulsador_resta='1' then
-	   estado_resta<="000";
+	   estado_resta<="0000";
 	elsif cont_espera_resta>=5000000 then
-	   estado_resta<="100";
+	   estado_resta<="0100";
 	else 
-	   estado_resta<="011";
+	   estado_resta<="0011";
 	end if;         
-when "100" =>
+when "0100" =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=cont_espera_resta+1;
     if pulsador_resta='1' then
-        estado_resta<="101";
+        estado_resta<="0101";
     elsif cont_espera_resta>=20000000 then
-        estado_resta<="000";
+        estado_resta<="0000";
     else
-        estado_resta<="100";
+        estado_resta<="0100";
     end if;        
-when "101" =>
+when "0101" =>
 	cont_filtro_resta<=cont_filtro_resta+1;
 	cont_espera_resta<=0;
 	if pulsador_resta='0' then	--rebote
-		estado_resta<="100";
+		estado_resta<="0100";
 	elsif pulsador_resta='1' and cont_filtro_resta>=100000 then
-		estado_resta<="110";
+		estado_resta<="0110";
 	else
-		estado_resta<="101";
+		estado_resta<="0101";
 	end if;
-when "110" =>
+when "0110" =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
 	if pulsador_resta='0' then
-		estado_resta<="111";
+		estado_resta<="0111";
 	else
-		estado_resta<="110";
+		estado_resta<="0110";
 	end if;
-when "111" =>
+when "0111" =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
-	estado_resta<="000";
+	estado_resta<="0000";
+when "1000" =>
+    estado_resta <= "0000";
 when others =>
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
-    estado_resta<="000";
+    estado_resta<="0000";
 end case;
+end if;
+end process;
+
+
+process(modo_suma, modo_resta)
+begin
+if modo_suma = '1' then
+modo <= '1';
+elsif modo_resta = '1' then
+modo <= '0';
 end if;
 end process;
 
 process(estado_suma)
 begin
+modo_suma <= '0';
+puls_sal_suma <= '0';
 case estado_suma is
-when "000" => puls_sal_suma<='0';
-when "001" => puls_sal_suma<='0';
-when "010" => puls_sal_suma<='0';
-when "011" => puls_sal_suma<='0';
-when "100" => puls_sal_suma<='0';
-when "101" => puls_sal_suma<='0';
-when "110" => puls_sal_suma<='0';
-when "111" => puls_sal_suma<='1';
+when "0000" => puls_sal_suma<='0';
+when "0001" => puls_sal_suma<='0';
+when "0010" => puls_sal_suma<='0';
+when "0011" => puls_sal_suma<='0';
+when "0100" => puls_sal_suma<='0';
+when "0101" => puls_sal_suma<='0';
+when "0110" => puls_sal_suma<='0';
+when "0111" => puls_sal_suma<='1';
+when "1000" => modo_suma <='1';
 when others => puls_sal_suma<='0';
 end case;
 end process;
 
 process(estado_resta)
 begin
+modo_resta <= '0';
+puls_sal_resta <= '0';
 case estado_resta is
-when "000" => puls_sal_resta<='0';
-when "001" => puls_sal_resta<='0';
-when "010" => puls_sal_resta<='0';
-when "011" => puls_sal_resta<='0';
-when "100" => puls_sal_resta<='0';
-when "101" => puls_sal_resta<='0';
-when "110" => puls_sal_resta<='0';
-when "111" => puls_sal_resta<='1';
+when "0000" => puls_sal_resta<='0';
+when "0001" => puls_sal_resta<='0';
+when "0010" => puls_sal_resta<='0';
+when "0011" => puls_sal_resta<='0';
+when "0100" => puls_sal_resta<='0';
+when "0101" => puls_sal_resta<='0';
+when "0110" => puls_sal_resta<='0';
+when "0111" => puls_sal_resta<='1';
+when "1000" => modo_resta <='1';
 when others => puls_sal_resta<='0';
 end case;
 end process;
