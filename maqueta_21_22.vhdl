@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
-use IEEE.std_logic_signed.all;
 
 entity maqueta_21_22 is
 port(
@@ -59,16 +58,35 @@ signal mode: std_logic_vector(3 downto 0);
 
 signal rpm_visualize : std_logic_vector(7 downto 0);
 
+signal temp:  std_logic_vector(7 downto 0);
+
+signal speedTemp:  std_logic_vector(3 downto 0);
+
+signal visualizacion : std_logic_vector(1 downto 0);
+
 begin
+
+temp <= data_out_msb & data_out_lsb(7 downto 4);
 
 led(1)<=FC2;
 led(0)<=FC1;
 
+calefactor <= '0';
+
 rpm_salida <= rpm_visualize;
 
--- calefactor<=FC1 or FC2;
+process(temp)
+begin
+if unsigned(temp) < 28 then
+speedTemp <= "0000";
+elsif unsigned(temp) > 35 then
+speedTemp <= "1111";
+else
+speedTemp <= std_logic_vector(to_unsigned( 15 - 2 * ( 35 - to_integer(unsigned(temp))), 4));
+end if;
+end process;
 
-sw <= sentido & speed;
+sw <= sentido & speedTemp;
 work_pwm_motor_DC : entity work.pwm_motor_DC
 port map (
 clk => clk,
@@ -78,7 +96,7 @@ pwm_motor_DC => pwm_motor_DC(0),
 sentido_motor_DC => pwm_motor_DC(1)
 );
 
-process(clk, inicio, start, que_ver, consigna, distancia_cm, sentido)
+process(clk, inicio, start, visualizacion, consigna, distancia_cm, sentido)
 begin
 if inicio = '1' then
     parar <= '1';
@@ -99,7 +117,7 @@ if start = '1' then
         parar <= '0';
     end if;
 else
-if que_ver = "01" then
+if visualizacion = "01" then
     if unsigned(consigna) < distancia_cm then
         dir <= '0';
     elsif unsigned(consigna) > distancia_cm then
@@ -115,9 +133,20 @@ end if;
 end if;
 end process;
 
-enable <= '1' when (parar = '0') and (speed > 0) else '0';
+enable <= '1' when (parar = '0') else '0';
 
-work_mode_behaviour : entity work.button_behaviour 
+work_visualizacion_behaviour : entity work.contador_auto  
+port map (
+clk => clk,
+inicio => inicio,
+pulsador_suma => button_up,
+pulsador_resta => button_down,
+maximo =>"11",
+contador => visualizacion 
+
+);
+
+work_consigna_behaviour : entity work.button_behaviour 
 port map (
 clk => clk,
 inicio => inicio,
@@ -136,7 +165,7 @@ enable => enable,
 dir => dir,
 enable_sal => enable_sal ,
 dir_sal => dir_sal,
-frecuencia_paso_paso => "00000" & speed,
+frecuencia_paso_paso => "000000111",
 step => step
 );
 
@@ -144,19 +173,19 @@ work_my_servo_v1 : entity work.my_servo_v1
 port map (
 clk => clk,
 inicio => inicio,
-selector => speed,
+selector => speedTemp,
 servo_pwm => servo_pwm
 );
 
-process(que_ver)
+process(visualizacion)
 begin
-if que_ver = "00" then
+if visualizacion = "00" then
     salida <= std_logic_vector(to_unsigned(distancia_cm, 12));
-elsif que_ver = "01"  then
+elsif visualizacion = "01"  then
     salida <= consigna & std_logic_vector(to_unsigned(distancia_cm, 6));
-elsif que_ver = "10" then
-    salida <= "0000" & data_out_msb & data_out_lsb(7 downto 4);
-elsif que_ver  = "11" then
+elsif visualizacion = "10" then
+    salida <= "0000" & temp;
+elsif visualizacion  = "11" then
    salida  <=  "0000" & rpm_visualize;
 else
     salida <= "000000000000";
@@ -168,7 +197,7 @@ end process;
 instance_bin : entity work.bin_BCD
 port map (
     clk => clk,
-    tipo => que_ver,
+    tipo => visualizacion,
     inicio => inicio,
     sw => salida,
     enable => '1',
@@ -197,11 +226,11 @@ port map (
 work_sensHall : entity work.sensor_hall
 port map (
   clk => clk,
-  reset => inicio,
+  inicio => inicio,
   sentido => sentido_salida,
-  a => sensor_hall_verde,
-  b => sensor_hall_azul,
-  led => rpm_visualize
+  sensor_hall_verde => sensor_hall_verde,
+  sensor_hall_azul => sensor_hall_azul,
+  rpm => rpm_visualize
 );
 
 end Behavioral;
