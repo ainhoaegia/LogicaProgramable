@@ -54,7 +54,7 @@ signal dir: std_logic;
 
 signal parar: std_logic;
 
-signal mode: std_logic_vector(3 downto 0);
+signal mode: std_logic;
 
 signal rpm_visualize : std_logic_vector(7 downto 0);
 
@@ -64,7 +64,12 @@ signal speedTemp:  std_logic_vector(3 downto 0);
 
 signal visualizacion : std_logic_vector(1 downto 0);
 
+signal dir_modo2: std_logic;
+signal direccion: std_logic;
+
 begin
+
+mode <= que_ver(0);
 
 temp <= data_out_msb & data_out_lsb(7 downto 4);
 
@@ -86,7 +91,15 @@ speedTemp <= std_logic_vector(to_unsigned( 15 - 2 * ( 35 - to_integer(unsigned(t
 end if;
 end process;
 
-sw <= sentido & speedTemp;
+process(speedTemp, sentido)
+begin
+if mode = '0' then
+    sw <= sentido & speedTemp;
+else
+    sw <= direccion & speed;
+end if;
+end process;
+
 work_pwm_motor_DC : entity work.pwm_motor_DC
 port map (
 clk => clk,
@@ -133,7 +146,7 @@ end if;
 end if;
 end process;
 
-enable <= '1' when (parar = '0') else '0';
+enable <= '1' when ((parar = '0') and mode = '0') or (mode  = '1') else '0';
 
 work_visualizacion_behaviour : entity work.contador_auto  
 port map (
@@ -143,8 +156,22 @@ pulsador_suma => button_up,
 pulsador_resta => button_down,
 maximo =>"11",
 contador => visualizacion 
-
 );
+
+process (clk, inicio)
+begin
+if inicio = '1' then
+    dir_modo2 <= '1';
+elsif rising_edge(clk) then
+if FC1 = '1' then
+    dir_modo2 <= '0';
+elsif FC2 = '1' then
+    dir_modo2 <= '1';
+end if;
+end if;
+end process;
+
+direccion <= dir when mode = '0' else dir_modo2;
 
 work_consigna_behaviour : entity work.button_behaviour 
 port map (
@@ -162,7 +189,7 @@ port map (
 clk => clk,
 reset => inicio,
 enable => enable,
-dir => dir,
+dir => direccion,
 enable_sal => enable_sal ,
 dir_sal => dir_sal,
 frecuencia_paso_paso => "000000111",
