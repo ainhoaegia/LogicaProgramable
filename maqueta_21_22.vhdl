@@ -69,8 +69,6 @@ signal direccion: std_logic;
 
 begin
 
-mode <= que_ver(0);
-
 temp <= data_out_msb & data_out_lsb(7 downto 4);
 
 led(1)<=FC2;
@@ -155,7 +153,8 @@ inicio => inicio,
 pulsador_suma => button_up,
 pulsador_resta => button_down,
 maximo =>"11",
-contador => visualizacion 
+contador => visualizacion,
+modo => mode
 );
 
 process (clk, inicio)
