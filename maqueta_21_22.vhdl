@@ -33,7 +33,7 @@ ds_data_bus	: INOUT	STD_LOGIC;
 speed: in std_logic_vector (3 downto 0);
 que_ver: in std_logic_vector (1 downto 0);
 servo_pwm: out std_logic;
-modo: out std_logic
+modo: out std_logic_vector(1 downto 0)
 );
 
 end entity;
@@ -55,7 +55,7 @@ signal dir: std_logic;
 
 signal parar: std_logic;
 
-signal mode: std_logic;
+signal mode: std_logic_vector(1 downto 0);
 
 signal rpm_visualize : std_logic_vector(7 downto 0);
 
@@ -94,7 +94,7 @@ end process;
 
 process(speedTemp, sentido)
 begin
-if mode = '0' then
+if mode = "00" then
     sw <= sentido & speedTemp;
 else
     sw <= direccion & speed;
@@ -131,7 +131,7 @@ if start = '1' then
         parar <= '0';
     end if;
 else
-if visualizacion = "01" then
+if mode = "10" then
     if unsigned(consigna) < distancia_cm then
         dir <= '0';
     elsif unsigned(consigna) > distancia_cm then
@@ -147,7 +147,7 @@ end if;
 end if;
 end process;
 
-enable <= '1' when (((parar = '0') and mode = '0') or (mode  = '1')) and inicio = '0' else '0';
+enable <= '1' when (((parar = '0') and mode = "00") or (mode  = "01") or ((parar = '0') and mode = "10")) and inicio = '0' else '0';
 
 work_visualizacion_behaviour : entity work.contador_auto  
 port map (
@@ -155,7 +155,7 @@ clk => clk,
 inicio => inicio,
 pulsador_suma => button_up,
 pulsador_resta => button_down,
-maximo =>"11",
+maximo =>"10",
 contador => visualizacion,
 modo => mode
 );
@@ -173,7 +173,7 @@ end if;
 end if;
 end process;
 
-direccion <= dir when mode = '0' else dir_modo2;
+direccion <= dir when mode = "00" or mode = "10" else dir_modo2;
 
 work_consigna_behaviour : entity work.button_behaviour 
 port map (
