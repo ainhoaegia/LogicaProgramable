@@ -92,7 +92,7 @@ speedTemp <= std_logic_vector(to_unsigned( 15 - 2 * ( 35 - to_integer(unsigned(t
 end if;
 end process;
 
-process(speedTemp, sentido)
+process(speedTemp, sentido, direccion, speed, mode)
 begin
 if mode = "00" then
     sw <= sentido & speedTemp;
@@ -206,7 +206,7 @@ selector => speedTemp,
 servo_pwm => servo_pwm
 );
 
-process(visualizacion)
+process(visualizacion, distancia_cm, consigna, temp, rpm_visualize)
 begin
 if visualizacion = "00" then
     salida <= std_logic_vector(to_unsigned(distancia_cm, 12));
