@@ -11,7 +11,7 @@ pulsador_suma: in std_logic;
 pulsador_resta: in std_logic;
 maximo: in std_logic_vector(1 downto 0);
 contador: out std_logic_vector(1 downto 0);
-modo: out std_logic
+modo: out std_logic_vector(1 downto 0)
 );
 end contador_auto;
 
@@ -21,11 +21,13 @@ signal estado_suma: std_logic_vector (3 downto 0);
 signal puls_sal_suma: std_logic;
 signal estado_resta: std_logic_vector (3 downto 0);
 signal puls_sal_resta: std_logic;
-signal cont_filtro_suma: integer range 0 to 20000000;
+signal cont_filtro_suma: integer range 0 to 200000000;
 signal cont_espera_suma: integer range 0 to 25000000;
 
-signal cont_filtro_resta: integer range 0 to 20000000;
+signal cont_filtro_resta: integer range 0 to 200000000;
 signal cont_espera_resta: integer range 0 to 25000000;
+
+signal modo_aux: std_logic_vector(1 downto 0);
 
 signal contador_aux: std_logic_vector(1 downto 0);
 
@@ -35,6 +37,7 @@ signal modo_resta: std_logic;
 begin
 
 contador <= contador_aux;
+modo <= modo_aux;
 
 process(inicio, clk)
 begin
@@ -65,9 +68,9 @@ when "0001" =>
 when "0010" =>
     cont_filtro_suma <= cont_filtro_suma + 1;
 	cont_espera_suma<=0;
-	if pulsador_suma ='0' and cont_filtro_suma < 20000000 then
+	if pulsador_suma ='0' and cont_filtro_suma < 200000000 then
 		estado_suma<="0011";
-	elsif cont_filtro_suma >= 20000000 then
+	elsif cont_filtro_suma >= 200000000 then
 	   estado_suma<="1000";
 	else
 		estado_suma<="0010";
@@ -154,9 +157,9 @@ when "0001" =>
 when "0010" =>
 	cont_filtro_resta<=cont_filtro_resta+1;
 	cont_espera_resta<=0;
-	if pulsador_resta ='0' and cont_filtro_resta < 20000000 then
+	if pulsador_resta ='0' and cont_filtro_resta < 200000000 then
 		estado_resta<="0011";
-	elsif cont_filtro_resta >= 20000000 then
+	elsif cont_filtro_resta >= 200000000 then
 	   estado_resta<="1000";
 	else
 		estado_resta<="0010";
@@ -216,10 +219,14 @@ end process;
 
 process(modo_suma, modo_resta)
 begin
-if modo_suma = '1' then
-modo <= '1';
-elsif modo_resta = '1' then
-modo <= '0';
+if inicio='1' then
+modo_aux<="00";
+elsif rising_edge(clk) then
+if modo_suma = '1' and modo_aux < maximo then
+modo_aux <= modo_aux + 1;
+elsif modo_resta = '1' and modo_aux > "00"  then
+modo_aux <= modo_aux - 1;
+end if;
 end if;
 end process;
 
