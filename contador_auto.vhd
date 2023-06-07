@@ -21,10 +21,10 @@ signal estado_suma: std_logic_vector (3 downto 0);
 signal puls_sal_suma: std_logic;
 signal estado_resta: std_logic_vector (3 downto 0);
 signal puls_sal_resta: std_logic;
-signal cont_filtro_suma: integer range 0 to 200000;
+signal cont_filtro_suma: integer range 0 to 20000000;
 signal cont_espera_suma: integer range 0 to 25000000;
 
-signal cont_filtro_resta: integer range 0 to 200000;
+signal cont_filtro_resta: integer range 0 to 20000000;
 signal cont_espera_resta: integer range 0 to 25000000;
 
 signal contador_aux: std_logic_vector(1 downto 0);
@@ -39,7 +39,7 @@ contador <= contador_aux;
 process(inicio, clk)
 begin
 if inicio='1' then
-   	estado_suma <="000";
+   	estado_suma <="0000";
 	cont_filtro_suma<=0;
 	cont_espera_suma<=0;
 elsif rising_edge(clk) then
@@ -128,7 +128,7 @@ end process;
 process(inicio, clk)
 begin
 if inicio='1' then
-   	estado_resta<="000";
+   	estado_resta<="0000";
 	cont_filtro_resta<=0;
 	cont_espera_resta<=0;
 elsif rising_edge(clk) then
@@ -152,7 +152,7 @@ when "0001" =>
 		estado_resta<="0001";
 	end if;
 when "0010" =>
-	cont_filtro_resta<=0;
+	cont_filtro_resta<=cont_filtro_resta+1;
 	cont_espera_resta<=0;
 	if pulsador_resta ='0' and cont_filtro_resta < 20000000 then
 		estado_resta<="0011";
