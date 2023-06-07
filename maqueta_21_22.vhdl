@@ -32,7 +32,8 @@ crc_en	: OUT		STD_LOGIC;
 ds_data_bus	: INOUT	STD_LOGIC;
 speed: in std_logic_vector (3 downto 0);
 que_ver: in std_logic_vector (1 downto 0);
-servo_pwm: out std_logic
+servo_pwm: out std_logic;
+modo: out std_logic
 );
 
 end entity;
@@ -73,6 +74,8 @@ temp <= data_out_msb & data_out_lsb(7 downto 4);
 
 led(1)<=FC2;
 led(0)<=FC1;
+
+modo <= mode;
 
 calefactor <= '0';
 
@@ -144,7 +147,7 @@ end if;
 end if;
 end process;
 
-enable <= '1' when ((parar = '0') and mode = '0') or (mode  = '1') else '0';
+enable <= '1' when (((parar = '0') and mode = '0') or (mode  = '1')) and inicio = '0' else '0';
 
 work_visualizacion_behaviour : entity work.contador_auto  
 port map (
