@@ -78,6 +78,9 @@ set_property PACKAGE_PIN U14 [get_ports {rpm_salida[6]}]
 	set_property IOSTANDARD LVCMOS33 [get_ports {rpm_salida[6]}]
 set_property PACKAGE_PIN V14 [get_ports {rpm_salida[7]}]			
 	set_property IOSTANDARD LVCMOS33 [get_ports {rpm_salida[7]}]
+	
+set_property PACKAGE_PIN U3 [get_ports {modo}]			
+	set_property IOSTANDARD LVCMOS33 [get_ports {modo}]
 
 set_property PACKAGE_PIN N3 [get_ports {led[0]}]			
 	set_property IOSTANDARD LVCMOS33 [get_ports {led[0]}]
