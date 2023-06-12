@@ -255,11 +255,11 @@ port map (
 work_sensHall : entity work.sensor_hall
 port map (
   clk => clk,
-  inicio => inicio,
+  reset => inicio,
   sentido => sentido_salida,
-  sensor_hall_verde => sensor_hall_verde,
-  sensor_hall_azul => sensor_hall_azul,
-  rpm => rpm_visualize
+  a => sensor_hall_verde,
+  b => sensor_hall_azul,
+  led => rpm_visualize
 );
 
 end Behavioral;
